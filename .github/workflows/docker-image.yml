@@ -34,5 +34,5 @@ jobs:
         env:
           VERSION: ${{ steps.tag_version.outputs.new_version }}
         run: |
-          ./build_docker_image.sh v0.46.5 1.1.2 metabase-clickhouse-driver:${VERSION}
+          ./build_docker_image.sh v0.46.5 1.1.2 ${{ env.REGISTRY }}/capturi/${{ env.PACKAGE_NAME }}:${VERSION}
           docker push ${{ env.REGISTRY }}/capturi/${{ env.PACKAGE_NAME }}:${VERSION}
