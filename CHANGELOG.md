@@ -1,3 +1,5 @@
+# Bump :) for new version
+
 # 1.1.7
 
 ### New features
