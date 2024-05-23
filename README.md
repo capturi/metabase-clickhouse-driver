@@ -32,11 +32,11 @@
 6. Make sure you are the in the directory where your `metabase.jar` lives.
 7. Run `MB_PLUGINS_DIR=./plugins; java -jar metabase.jar`.
 
-For example [(using Metabase v0.45.3 and ClickHouse driver 1.1.2)](#choosing-the-right-version):
+For example [(using Metabase v0.47.2 and ClickHouse driver 1.2.2)](#choosing-the-right-version):
 
 ```bash
-export METABASE_VERSION=0.45.3
-export METABASE_CLICKHOUSE_DRIVER_VERSION=1.1.2
+export METABASE_VERSION=v0.47.2
+export METABASE_CLICKHOUSE_DRIVER_VERSION=1.2.2
 
 mkdir -p mb/plugins && cd mb
 curl -o metabase.jar https://downloads.metabase.com/$METABASE_VERSION/metabase.jar
@@ -49,8 +49,8 @@ MB_PLUGINS_DIR=./plugins; java -jar metabase.jar
 Alternatively, if you don't want to run Metabase Jar, you can use a Docker image:
 
 ```bash
-export METABASE_DOCKER_VERSION=v0.45.3
-export METABASE_CLICKHOUSE_DRIVER_VERSION=1.1.2
+export METABASE_DOCKER_VERSION=v0.47.2
+export METABASE_CLICKHOUSE_DRIVER_VERSION=1.2.2
 
 mkdir -p mb/plugins && cd mb
 curl -L -o plugins/ch.jar https://github.com/ClickHouse/metabase-clickhouse-driver/releases/download/$METABASE_CLICKHOUSE_DRIVER_VERSION/clickhouse.metabase-driver.jar
@@ -61,29 +61,33 @@ docker run -d -p 3000:3000 \
 
 ## Choosing the Right Version
 
-Metabase Release | Driver Version
----------------- | --------------
-0.33.x           | 0.6
-0.34.x           | 0.7.0
-0.35.x           | 0.7.1
-0.37.3           | 0.7.3
-0.38.1+          | 0.7.5
-0.41.2           | 0.8.0
-0.41.3.1         | 0.8.1
-0.42.x           | 0.8.1
-0.44.x           | 0.9.1
-0.45.x           | 1.1.0
-0.46.x           | 1.1.2
+| Metabase Release | Driver Version |
+| ---------------- | -------------- |
+| 0.33.x           | 0.6            |
+| 0.34.x           | 0.7.0          |
+| 0.35.x           | 0.7.1          |
+| 0.37.3           | 0.7.3          |
+| 0.38.1+          | 0.7.5          |
+| 0.41.2           | 0.8.0          |
+| 0.41.3.1         | 0.8.1          |
+| 0.42.x           | 0.8.1          |
+| 0.44.x           | 0.9.1          |
+| 0.45.x           | 1.1.0          |
+| 0.46.x           | 1.1.7          |
+| 0.47.x           | 1.2.3          |
+| 0.47.7+          | 1.2.5          |
+| 0.48.x           | 1.3.4          |
+| 0.49.x           | 1.4.0          |
 
 ## Creating a Metabase Docker image with ClickHouse driver
 
-You can use a convenience script `build_docker_image.sh` which takes three arguments: Metabase version, ClickHouse driver version, and the desired final Docker image tag.
+You can use a convenience script `build_docker_image.sh`, which takes three arguments: Metabase version, ClickHouse driver version, and the desired final Docker image tag.
 
 ```bash
-./build_docker_image.sh v0.44.6 0.8.3 my-metabase-with-clickhouse:v0.0.1
+./build_docker_image.sh v0.47.2 1.2.2 my-metabase-with-clickhouse:v0.0.1
 ```
 
-where `v0.44.6` is Metabase version, `0.8.3` is ClickHouse driver version, and `my-metabase-with-clickhouse:v0.0.1` being the tag.
+where `v0.47.2` is Metabase version, `1.2.2` is ClickHouse driver version, and `my-metabase-with-clickhouse:v0.0.1` being the tag.
 
 Then you should be able to run it:
 
@@ -91,13 +95,13 @@ Then you should be able to run it:
 docker run -d -p 3000:3000 --name my-metabase my-metabase-with-clickhouse:v0.0.1
 ```
 
-or use with Docker compose, for example:
+or use it with Docker compose, for example:
 
 ```yaml
 version: '3.8'
 services:
   clickhouse:
-    image: 'clickhouse/clickhouse-server:22.10.2-alpine'
+    image: 'clickhouse/clickhouse-server:23.8-alpine'
     container_name: 'metabase-clickhouse-server'
     ports:
       - '8123:8123'
@@ -138,6 +142,8 @@ The driver should work fine for many use cases. Please consider the following it
 ## Known limitations
 
 * As the underlying JDBC driver version does not support columns with `AggregateFunction` type, these columns are excluded from the table metadata and data browser result sets to prevent sync or data browsing errors.
+* If the past month/week/quarter/year filter over a DateTime64 column is not working as intended, this is likely due to a [type conversion issue](https://github.com/ClickHouse/ClickHouse/pull/50280). See [this report](https://github.com/ClickHouse/metabase-clickhouse-driver/issues/164) for more details. This issue was resolved as of ClickHouse 23.5.
+* If introspected ClickHouse version is lower than 23.8, the driver will not use [startsWithUTF8](https://clickhouse.com/docs/en/sql-reference/functions/string-functions#startswithutf8) and fall back to its [non-UTF8 counterpart](https://clickhouse.com/docs/en/sql-reference/functions/string-functions#startswith) instead. There is a drawback in this compatibility mode: potentially incorrect filtering results when working with non-latin strings. If your use case includes filtering by columns with such strings and you experience these issues, consider upgrading your ClickHouse server to 23.8+.
 
 ## Contributing
 

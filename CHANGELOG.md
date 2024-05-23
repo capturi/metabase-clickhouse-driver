@@ -1,10 +1,89 @@
-# Bump :) for new version
+# 1.4.0
+
+### New features
+* Metabase 0.49.x support.
+
+### Bug fixes
+* Fixed an incorrect substitution for the current day filter with DateTime columns. ([#216](https://github.com/ClickHouse/metabase-clickhouse-driver/issues/216))
+
+# 1.3.4
+
+### New features
+
+* If introspected ClickHouse version is lower than 23.8, the driver will not use [startsWithUTF8](https://clickhouse.com/docs/en/sql-reference/functions/string-functions#startswithutf8) and fall back to its [non-UTF8 counterpart](https://clickhouse.com/docs/en/sql-reference/functions/string-functions#startswith) instead. There is a drawback in this compatibility mode: potentially incorrect filtering results when working with non-latin strings. If your use case includes filtering by columns with such strings and you experience these issues, consider upgrading your ClickHouse server to 23.8+. ([#224](https://github.com/ClickHouse/metabase-clickhouse-driver/issues/224))
+
+# 1.3.3
+
+### Bug fixes
+* Fixed an issue where it was not possible to create a connection with multiple databases using TLS. ([#215](https://github.com/ClickHouse/metabase-clickhouse-driver/issues/215))
+
+# 1.3.2
+
+### Bug fixes
+* Remove `can-connect?` method override which could cause issues with editing or creating new connections. ([#212](https://github.com/ClickHouse/metabase-clickhouse-driver/issues/212))
+
+
+# 1.3.1
+
+### Bug fixes
+* Fixed incorrect serialization of `Array(UInt8)` columns ([#209](https://github.com/ClickHouse/metabase-clickhouse-driver/issues/209))
+
+# 1.3.0
+
+### New features
+* Metabase 0.48.x support
+
+### Bug fixes
+* Fixed last/next minutes/hours filters with variables creating incorrect queries due to unnecessary `CAST col AS date` call.
+
+# 1.2.5
+
+Metabase 0.47.7+ only.
+
+### New features
+* Added [datetimeDiff](https://www.metabase.com/docs/latest/questions/query-builder/expressions/datetimediff) function support ([#117](https://github.com/ClickHouse/metabase-clickhouse-driver/issues/117))
+
+# 1.2.4
+
+Metabase 0.47.7+ only.
+
+### Bug fixes
+* Fixed UI question -> SQL conversion creating incorrect queries due to superfluous spaces in columns/tables/database names.
+
+# 1.2.3
+
+### Bug fixes
+
+* Fixed `LowCardinality(Nullable)` types introspection, where it was incorrectly reported as `type/*` ([#203](https://github.com/ClickHouse/metabase-clickhouse-driver/issues/203))
+
+# 1.2.2
+
+### Bug fixes
+* Removed forward slash from serialized IPv4/IPv6 columns. NB: IPv4/IPv6 columns are temporarily resolved as `type/TextLike` instead of `type/IPAddress` base type due to an unexpected result in Metabase 0.47 type check.
+* Removed superfluous CAST calls from generated queries that use Date* columns and/or intervals
+
+# 1.2.1
+### New features
+* Use HoneySQL2 in the driver
+
+# 1.2.0
+
+### New features
+* Metabase 0.47 support
+* Connection impersonation support (0.47 feature)
+
+### Bug fixes
+* More correct general database type -> base type mapping
+* `DateTime64` is now correctly mapped to `:type/DateTime`
+* `database-required` field property is now correctly set to `true` if a field is not `Nullable`
 
 # 1.1.7
 
 ### New features
 
 * JDBC driver upgrade (v0.4.1 -> [v0.4.6](https://github.com/ClickHouse/clickhouse-java/releases/tag/v0.4.6))
+* Support DateTime64 by [@lucas-tubi](https://github.com/lucas-tubi) ([#165](https://github.com/ClickHouse/metabase-clickhouse-driver/pull/165))
+* Use native `startsWith`/`endsWith` instead of `LIKE str%`/`LIKE %str`
 
 # 1.1.6
 
